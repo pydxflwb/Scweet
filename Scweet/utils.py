@@ -19,9 +19,10 @@ from selenium.webdriver.common.by import By
 import const
 import urllib
 
+
 # current_dir = pathlib.Path(__file__).parent.absolute()
 
-def get_data(card, save_images = False, save_dir = None):
+def get_data(card, save_images=False, save_dir=None):
     """Extract data from tweet card"""
     image_links = []
 
@@ -70,11 +71,11 @@ def get_data(card, save_images = False, save_dir = None):
     try:
         elements = card.find_elements_by_xpath('.//div[2]/div[2]//img[contains(@src, "https://pbs.twimg.com/")]')
         for element in elements:
-        	image_links.append(element.get_attribute('src'))
+            image_links.append(element.get_attribute('src'))
     except:
         image_links = []
 
-    #if save_images == True:
+    # if save_images == True:
     #	for image_url in image_links:
     #		save_image(image_url, image_url, save_dir)
     # handle promoted tweets
@@ -113,7 +114,6 @@ def get_data(card, save_images = False, save_dir = None):
     return tweet
 
 
-
 def init_driver(headless=True, proxy=None, show_images=False):
     """ initiate a chromedriver instance """
 
@@ -131,8 +131,8 @@ def init_driver(headless=True, proxy=None, show_images=False):
     if proxy is not None:
         options.add_argument('--proxy-server=%s' % proxy)
     if show_images == False:
-    	prefs = {"profile.managed_default_content_settings.images": 2}
-    	options.add_experimental_option("prefs", prefs)
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        options.add_experimental_option("prefs", prefs)
     driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
     driver.set_page_load_timeout(100)
     return driver
@@ -146,7 +146,7 @@ def log_search_page(driver, start_date, end_date, lang, display_type, words, to_
     hash_tags = "(%23" + hashtag + ")%20" if hashtag is not None else ""
 
     if words is not None:
-        #words = str(words).split("//")
+        # words = str(words).split("//")
         words = "(" + str('%20OR%20'.join(words)) + ")%20"
     else:
         words = ""
@@ -160,11 +160,11 @@ def log_search_page(driver, start_date, end_date, lang, display_type, words, to_
     start_date = "since%3A" + start_date + "%20"
 
     if display_type == "Latest" or display_type == "latest":
-    	display_type = "&f=live"
+        display_type = "&f=live"
     elif display_type == "Image" or display_type == "image":
-    	display_type = "&f=image"
+        display_type = "&f=image"
     else:
-    	display_type = ""
+        display_type = ""
 
     driver.get(
         'https://twitter.com/search?q=' + words + from_account + to_account + hash_tags + end_date + start_date + lang + '&src=typed_query' + display_type)
@@ -191,14 +191,15 @@ def log_in(driver, timeout=10):
     password_el.send_keys(Keys.RETURN)
 
 
-def keep_scroling(driver, data, writer, tweet_ids, scrolling, tweet_parsed, limit, scroll, last_position, save_images = False):
+def keep_scroling(driver, data, writer, tweet_ids, scrolling, tweet_parsed, limit, scroll, last_position,
+                  save_images=False):
     """ scrolling function for tweets crawling"""
 
     save_images_dir = "/images"
 
     if save_images == True:
-    	if not os.path.exists(save_images_dir):
-    		os.mkdir(save_images_dir)
+        if not os.path.exists(save_images_dir):
+            os.mkdir(save_images_dir)
 
     while scrolling and tweet_parsed < limit:
         sleep(random.uniform(0.5, 1.5))
@@ -242,81 +243,80 @@ def keep_scroling(driver, data, writer, tweet_ids, scrolling, tweet_parsed, limi
 
 
 def get_users_follow(users, headless, follow=None, verbose=1, wait=2):
-	""" get the following or followers of a list of users """
+    """ get the following or followers of a list of users """
 
-	# initiate the driver
-	driver = init_driver(headless=headless)
-	sleep(wait)
-	# log in (the .env file should contain the username and password)
-	log_in(driver)
-	sleep(wait)
-	# followers and following dict of each user
-	follows_users = {}
+    # initiate the driver
+    driver = init_driver(headless=headless)
+    sleep(wait)
+    # log in (the .env file should contain the username and password)
+    log_in(driver)
+    sleep(wait)
+    # followers and following dict of each user
+    follows_users = {}
 
-	for user in users:
-	    # log user page
-	    print("Crawling @" + user + " "+ follow)
-	    driver.get('https://twitter.com/' + user)
-	    sleep(random.uniform(wait-0.5, wait+0.5))
-	    # find the following or followers button
-	    driver.find_element_by_xpath('//a[contains(@href,"/' + follow + '")]/span[1]/span[1]').click()
-	    sleep(random.uniform(wait-0.5, wait+0.5))
-	    # if the log in fails, find the new log in button and log in again.
-	    if check_exists_by_link_text("Log in", driver):
-	        login = driver.find_element_by_link_text("Log in")
-	        sleep(random.uniform(wait-0.5, wait+0.5))
-	        driver.execute_script("arguments[0].click();", login)
-	        sleep(random.uniform(wait-0.5, wait+0.5))
-	        driver.get('https://twitter.com/' + user)
-	        sleep(random.uniform(wait-0.5, wait+0.5))
-	        driver.find_element_by_xpath('//a[contains(@href,"/' + follow + '")]/span[1]/span[1]').click()
-	        sleep(random.uniform(wait-0.5, wait+0.5))
-	    # check if we must keep scrolling
-	    scrolling = True
-	    last_position = driver.execute_script("return window.pageYOffset;")
-	    follows_elem = []
-	    follow_ids = set()
+    for user in users:
+        # log user page
+        print("Crawling @" + user + " " + follow)
+        driver.get('https://twitter.com/' + user)
+        sleep(random.uniform(wait - 0.5, wait + 0.5))
+        # find the following or followers button
+        driver.find_element_by_xpath('//a[contains(@href,"/' + follow + '")]/span[1]/span[1]').click()
+        sleep(random.uniform(wait - 0.5, wait + 0.5))
+        # if the log in fails, find the new log in button and log in again.
+        if check_exists_by_link_text("Log in", driver):
+            login = driver.find_element_by_link_text("Log in")
+            sleep(random.uniform(wait - 0.5, wait + 0.5))
+            driver.execute_script("arguments[0].click();", login)
+            sleep(random.uniform(wait - 0.5, wait + 0.5))
+            driver.get('https://twitter.com/' + user)
+            sleep(random.uniform(wait - 0.5, wait + 0.5))
+            driver.find_element_by_xpath('//a[contains(@href,"/' + follow + '")]/span[1]/span[1]').click()
+            sleep(random.uniform(wait - 0.5, wait + 0.5))
+        # check if we must keep scrolling
+        scrolling = True
+        last_position = driver.execute_script("return window.pageYOffset;")
+        follows_elem = []
+        follow_ids = set()
 
-	    while scrolling:
-	        # get the card of following or followers
-	        page_cards = driver.find_elements_by_xpath('//div[contains(@data-testid,"UserCell")]')
-	        for card in page_cards:
-	        	# get the following or followers element
-	            element = card.find_element_by_xpath('.//div[1]/div[1]/div[1]//a[1]')
-	            follow_elem = element.get_attribute('href')
-	            # append to the list
-	            follow_id = str(follow_elem)
-	            follow_elem = '@' + str(follow_elem).split('/')[-1]
-	            if follow_id not in follow_ids:
-	            	follow_ids.add(follow_id)
-	            	follows_elem.append(follow_elem)
-	            if verbose:
-	                print(follow_elem)
-	        print("Found " + str(len(follows_elem)) + " " + follow)
-	        scroll_attempt = 0
-	        while True:
-	            sleep(random.uniform(wait-0.5, wait+0.5))
-	            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-	            sleep(random.uniform(wait-0.5, wait+0.5))
-	            curr_position = driver.execute_script("return window.pageYOffset;")
-	            if last_position == curr_position:
-	                scroll_attempt += 1
+        while scrolling:
+            # get the card of following or followers
+            page_cards = driver.find_elements_by_xpath('//div[contains(@data-testid,"UserCell")]')
+            for card in page_cards:
+                # get the following or followers element
+                element = card.find_element_by_xpath('.//div[1]/div[1]/div[1]//a[1]')
+                follow_elem = element.get_attribute('href')
+                # append to the list
+                follow_id = str(follow_elem)
+                follow_elem = '@' + str(follow_elem).split('/')[-1]
+                if follow_id not in follow_ids:
+                    follow_ids.add(follow_id)
+                    follows_elem.append(follow_elem)
+                if verbose:
+                    print(follow_elem)
+            print("Found " + str(len(follows_elem)) + " " + follow)
+            scroll_attempt = 0
+            while True:
+                sleep(random.uniform(wait - 0.5, wait + 0.5))
+                driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                sleep(random.uniform(wait - 0.5, wait + 0.5))
+                curr_position = driver.execute_script("return window.pageYOffset;")
+                if last_position == curr_position:
+                    scroll_attempt += 1
 
-	                # end of scroll region
-	                if scroll_attempt >= 3:
-	                    scrolling = False
-	                    break
-	                    #return follows_elem
-	                else:
-	                    sleep(random.uniform(wait-0.5, wait+0.5))  # attempt another scroll
-	            else:
-	                last_position = curr_position
-	                break
+                    # end of scroll region
+                    if scroll_attempt >= 3:
+                        scrolling = False
+                        break
+                        # return follows_elem
+                    else:
+                        sleep(random.uniform(wait - 0.5, wait + 0.5))  # attempt another scroll
+                else:
+                    last_position = curr_position
+                    break
 
-	    follows_users[user] = follows_elem
+        follows_users[user] = follows_elem
 
-	return follows_users
-
+    return follows_users
 
 
 def check_exists_by_link_text(text, driver):
@@ -328,8 +328,6 @@ def check_exists_by_link_text(text, driver):
 
 
 def dowload_images(urls, save_dir):
-
-	for i, url_v in enumerate(urls):
-		for j, url in enumerate(url_v):
-			urllib.request.urlretrieve(url, save_dir + '/' + str(i+1) + '_' + str(j+1) + ".jpg")
-
+    for i, url_v in enumerate(urls):
+        for j, url in enumerate(url_v):
+            urllib.request.urlretrieve(url, save_dir + '/' + str(i + 1) + '_' + str(j + 1) + ".jpg")

@@ -1,3 +1,8 @@
+import csv
+import os
+import datetime
+import argparse
+import pandas as pd
 import utils
 from time import sleep
 import random
@@ -10,7 +15,7 @@ def get_user_information(users, driver=None, headless=True):
 
     users_info = {}
 
-    for i, user in enumerate(users) :
+    for i, user in enumerate(users):
 
         log_user_page(user, driver)
 
@@ -107,5 +112,11 @@ def get_users_following(users, verbose=1, headless=True, wait=2):
 
     return following
 
+
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
+
+
+if __name__ == '__main__':
+    users = ['@YourAnonCentral', '@YourAnonNews']
+    result = get_user_information(users, headless=True)
