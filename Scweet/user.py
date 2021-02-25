@@ -21,14 +21,17 @@ def get_user_information(users, driver=None, headless=True):
 
         if user is not None:
 
+
             try:
                 following = driver.find_element_by_xpath(
                     '//a[contains(@href,"/following")]/span[1]/span[1]').text
                 followers = driver.find_element_by_xpath(
                     '//a[contains(@href,"/followers")]/span[1]/span[1]').text
+                # nickname = driver.find_element_by_xpath(
+                #     '//a[contains(@href,"/followers")]/../../../div[2]/div[1]/div[1]/div[1]/div[1]/span[1]/span[1]').text
             except Exception as e:
                 #print(e)
-                return
+                continue
 
             try:
                 element = driver.find_element_by_xpath('//div[contains(@data-testid,"UserProfileHeader_Items")]//a[1]')
@@ -42,6 +45,8 @@ def get_user_information(users, driver=None, headless=True):
             except Exception as e:
                 #print(e)
                 desc = ""
+
+
             a=0
             try:
                 join_date = driver.find_element_by_xpath(
@@ -76,6 +81,7 @@ def get_user_information(users, driver=None, headless=True):
                         birthday = ""
                         location = ""
             print("--------------- " + user + " information : ---------------")
+            # print("Nickname : ", nickname)
             print("Following : ", following)
             print("Followers : ", followers)
             print("Location : ", location)
